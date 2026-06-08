@@ -1600,18 +1600,19 @@
       btnSubmit.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 0.9s linear infinite"></i> Odesílám...';
 
       try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
+        await fetch("https://script.google.com/macros/s/AKfycbyT4RtGXUEO4Mcn2MlcKFOmz72uhzxkqOO4LhvMxmNRz9m8cI2UoaY6AryiXF4IA9nk/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({
+            email: emailInp.value.trim(),
+            typ: radioVal()?.value,
+            gdpr: document.getElementById('gdpr').checked
+          }),
         });
 
-        if (res.ok) {
-          formWrap.style.display = 'none';
-          ty.classList.add('show');
-        } else {
-          throw new Error();
-        }
+        formWrap.style.display = 'none';
+        ty.classList.add('show');
       } catch {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = '<i class="ti ti-rocket"></i> Mám zájem — chci být v pořadníku';
