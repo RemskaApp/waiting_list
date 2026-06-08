@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Remska — Zakázky, protokoly a faktury. Vše v jedné appce.</title>
-  <meta name="description" content="Remska je appka pro elektrikáře, instalatéry, malíře a další řemeslníky. Zakázky, předávací protokoly, faktury a fotodokumentace — vše v jednom. Early access se 40% slevou." />
+  <meta name="description" content="Remska je appka pro elektrikáře, instalatéry, malíře a další řemeslníky. Zakázky, předávací protokoly, faktury a fotodokumentace — vše v jednom. Zaregistruj se do pořadníku se 40% slevou." />
   <meta property="og:title" content="Remska — Zakázky, protokoly a faktury. Vše v jedné appce." />
-  <meta property="og:description" content="Appka pro řemeslníky kteří mají dost papírů, excelu a WhatsAppu. Získej early access se 40% slevou navždy." />
+  <meta property="og:description" content="Appka pro řemeslníky kteří mají dost papírů, excelu a WhatsAppu. Zaregistruj se do pořadníku a získej 40% slevu navždy." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://remska.com" />
   <meta property="og:image" content="https://remska.com/og-image.png" />
@@ -174,7 +174,7 @@
     ═══════════════════════════════════════ */
     #hero {
       min-height: 100svh;
-      padding: 120px 0 80px;
+      padding: 80px 0 48px;
       display: flex;
       align-items: center;
       /* Subtle grid background */
@@ -216,13 +216,13 @@
 
     .hero-h1 {
       font-family: var(--f-display);
-      font-size: clamp(3rem, 9vw, 6.5rem);
+      font-size: clamp(2.5rem, 9vw, 6.5rem);
       font-weight: 900;
       line-height: 0.95;
       letter-spacing: -0.01em;
       text-transform: uppercase;
       color: var(--text);
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
 
     /* Amber filled word */
@@ -239,7 +239,7 @@
       color: var(--text-muted);
       max-width: 500px;
       line-height: 1.7;
-      margin-bottom: 36px;
+      margin-bottom: 24px;
     }
 
     .hero-sub strong { color: var(--text); font-weight: 600; }
@@ -249,7 +249,7 @@
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 24px;
     }
 
     .btn-primary {
@@ -1168,7 +1168,7 @@
   <nav>
     <a href="#" class="nav-logo">REM<em>SKA</em></a>
     <div class="nav-right">
-      <span class="nav-label">EARLY ACCESS OTEVŘEN</span>
+      <span class="nav-label">REGISTRACE OTEVŘENA</span>
       <a href="#waitlist" class="btn-nav">
         <i class="ti ti-arrow-down"></i>
         Registrovat
@@ -1184,7 +1184,7 @@
         <div class="hero-content">
           <div class="hero-eyebrow rv">
             <i class="ti ti-bolt"></i>
-            Spouštíme Q4 2026 · Early access
+            Spouštíme Q4 2026 · Zaregistruj se do pořadníku
           </div>
 
           <h1 class="hero-h1 rv rv-d1">
@@ -1201,7 +1201,7 @@
           <div class="hero-actions rv rv-d3">
             <a href="#waitlist" class="btn-primary">
               <i class="ti ti-rocket"></i>
-              Získat early access
+              Zaregistrovat se do pořadníku
             </a>
           </div>
 
@@ -1336,6 +1336,14 @@
     </div>
   </section>
 
+  <!-- ═══════ MID CTA ═══════ -->
+  <div style="padding: 0 0 80px; text-align: center;">
+    <a href="#waitlist" class="btn-primary rv" style="display:inline-flex;">
+      <i class="ti ti-arrow-down"></i>
+      Chci to taky vyřešit — zaregistrovat se
+    </a>
+  </div>
+
   <!-- ═══════ FEATURES ═══════ -->
   <section id="features">
     <div class="container">
@@ -1351,7 +1359,7 @@
           <div class="feat-icon"><i class="ti ti-calendar-event"></i></div>
           <div>
             <div class="feat-title">Zakázky a kalendář</div>
-            <div class="feat-desc">Všechny zakázky na jednom místě — s termínem, zákazníkem, cenou a stavem. Kalendář ti ukáže co máš zítra a co nestihneš. Konec scrollování přes desítky zpráv ve WhatsAppu.</div>
+            <div class="feat-desc">Všechny zakázky, termíny a zákazníci na jednom místě — žádný WhatsApp, žádný Excel.</div>
             <span class="feat-chip"><i class="ti ti-check"></i> Přehled všeho najednou</span>
           </div>
         </div>
@@ -1360,7 +1368,7 @@
           <div class="feat-icon"><i class="ti ti-signature"></i></div>
           <div>
             <div class="feat-title">Předávací protokol + podpis zákazníka</div>
-            <div class="feat-desc">Po dokončení práce zákazník podepíše přímo na tvém mobilu. Protokol se automaticky přiloží k zakázce. Máš důkaz, zákazník má jistotu. Bez papírování.</div>
+            <div class="feat-desc">Zákazník podepíše protokol přímo na tvém mobilu — důkaz máš okamžitě, bez papírování.</div>
             <span class="feat-chip"><i class="ti ti-check"></i> Právně platný podpis na mobilu</span>
           </div>
         </div>
@@ -1369,7 +1377,7 @@
           <div class="feat-icon"><i class="ti ti-receipt"></i></div>
           <div>
             <div class="feat-title">Faktura s QR platbou jedním klikem</div>
-            <div class="feat-desc">Ze zakázky vygeneruješ fakturu za pár vteřin. Zákazník naskenuje QR kód a platí hned. Žádné přepisování, žádné chyby v čísle účtu. Peníze přijdou rychleji.</div>
+            <div class="feat-desc">Ze zakázky vygeneruješ fakturu za pár vteřin — zákazník naskenuje QR kód a platí hned.</div>
             <span class="feat-chip"><i class="ti ti-check"></i> QR platba dle standardu ČNB</span>
           </div>
         </div>
@@ -1378,7 +1386,7 @@
           <div class="feat-icon"><i class="ti ti-camera"></i></div>
           <div>
             <div class="feat-title">Fotodokumentace před / po</div>
-            <div class="feat-desc">Vyfotíš stav před prací a po. Fotky se automaticky přiřadí k zakázce s časovým razítkem. Zákazník vidí co bylo a co je. Ty máš archiv pro případ reklamace.</div>
+            <div class="feat-desc">Fotky před a po se přiřadí k zakázce s časovým razítkem — máš archiv pro případ reklamace.</div>
             <span class="feat-chip"><i class="ti ti-check"></i> Časové razítko na každé fotce</span>
           </div>
         </div>
@@ -1393,9 +1401,9 @@
       <div class="waitlist-wrap">
 
         <div class="waitlist-intro rv">
-          <div class="s-eyebrow" style="justify-content:center;">Early access</div>
-          <h2 class="s-h2">Získej early access<br />se 40% slevou<br />navždy</h2>
-          <p class="s-sub">Prvních 100 řemeslníků dostane cenu uzamčenou navždy. Bez ročních smluv, bez háčků.</p>
+          <div class="s-eyebrow" style="justify-content:center;">Pořadník zájemců</div>
+          <h2 class="s-h2">Zaregistruj se<br />do pořadníku —<br />40% sleva navždy</h2>
+          <p class="s-sub">Prvních 100 zájemců dostane 40% slevu uzamčenou navždy. Žádná platba teď, jen projevíš zájem.</p>
         </div>
 
         <!-- Counter -->
@@ -1416,7 +1424,7 @@
         <div class="form-card rv">
           <div id="form-wrap">
             <form id="wl-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
-              <input type="hidden" name="_subject" value="Nový zájemce o Remska early access" />
+              <input type="hidden" name="_subject" value="Nový zájemce o Remska — pořadník" />
               <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
 
               <label class="field-label">Kdo jsi?</label>
@@ -1461,7 +1469,7 @@
                 <div class="gdpr-panel-inner">
                   <p class="gdpr-p"><strong>Kdo zpracovává tvé údaje:</strong> František Hoza, IČO 07723547 (správce údajů), remska.com</p>
                   <p class="gdpr-p"><strong>Jaké údaje:</strong> Pouze e-mailová adresa a typ podnikání, které jsi zadal/a do formuláře.</p>
-                  <p class="gdpr-p"><strong>Za jakým účelem:</strong> Informování o spuštění aplikace Remska a zasílání early access pozvánky. Bez souhlasu ti nenapíšeme.</p>
+                  <p class="gdpr-p"><strong>Za jakým účelem:</strong> Informování o spuštění aplikace Remska a zasílání pozvánky do pořadníku. Bez souhlasu ti nenapíšeme.</p>
                   <p class="gdpr-p"><strong>Jak dlouho:</strong> Do spuštění produktu, max. 24 měsíců. Kdykoli můžeš souhlas odvolat e-mailem na ahoj@remska.com.</p>
                   <p class="gdpr-p"><strong>Tvá práva (GDPR):</strong> Právo na přístup, opravu, výmaz, přenositelnost a námitku. Stížnost lze podat u ÚOOÚ (uoou.cz).</p>
                   <p class="gdpr-p" style="margin-top:0;">Data jsou uložena v EU. Nepředáváme je třetím stranám kromě Formspree (zpracovatel formulářů, EU-US DPF).</p>
@@ -1470,9 +1478,9 @@
 
               <button type="submit" class="btn-submit" id="btn-submit">
                 <i class="ti ti-rocket"></i>
-                Chci early access
+                Mám zájem — chci být v pořadníku
               </button>
-              <p class="form-note-text">Žádný spam. Napíšeme ti jen když otevřeme přístup.</p>
+              <p class="form-note-text">Žádný závazek, žádná platba. Napíšeme ti až appka bude připravena.</p>
             </form>
           </div>
 
@@ -1603,7 +1611,7 @@
         }
       } catch {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = '<i class="ti ti-rocket"></i> Chci early access';
+        btnSubmit.innerHTML = '<i class="ti ti-rocket"></i> Mám zájem — chci být v pořadníku';
         alert('Něco se nepovedlo. Zkus to prosím znovu nebo nás kontaktuj na ahoj@remska.com');
       }
     });
