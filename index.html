@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remska — Zakázky, protokoly a faktury. Vše v jedné appce.</title>
+  <meta name="description" content="Remska je appka pro elektrikáře, instalatéry, malíře a další řemeslníky. Zakázky, předávací protokoly, faktury a fotodokumentace — vše v jednom. Early access se 40% slevou." />
+  <meta property="og:title" content="Remska — Zakázky, protokoly a faktury. Vše v jedné appce." />
+  <meta property="og:description" content="Appka pro řemeslníky kteří mají dost papírů, excelu a WhatsAppu. Získej early access se 40% slevou navždy." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://remska.com" />
+  <meta property="og:image" content="https://remska.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+  <style>
+    /* ═══════════════════════════════════════
+       RESET & TOKENS
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #080809;
+      --bg-2:        #0f0f11;
+      --bg-3:        #161618;
+      --bg-4:        #1d1d20;
+      --border:      #222225;
+      --border-hi:   #333337;
+      --border-glow: #5a4200;
+
+      --text:        #f0ece6;
+      --text-muted:  #7a7680;
+      --text-dim:    #424048;
+
+      --amber:       #f59e0b;
+      --amber-hi:    #fbbf24;
+      --amber-dim:   #78490a;
+      --amber-bg:    rgba(245,158,11,0.06);
+
+      --red:         #dc2626;
+      --red-bg:      rgba(220,38,38,0.07);
+
+      --green:       #16a34a;
+      --green-bg:    rgba(22,163,74,0.08);
+
+      --f-display:   'Barlow Condensed', sans-serif;
+      --f-body:      'IBM Plex Sans', sans-serif;
+      --f-mono:      'JetBrains Mono', monospace;
+
+      --r:    4px;
+      --r-lg: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--f-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Concrete grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: overlay;
+    }
+
+    /* ═══════════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════════ */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    section { position: relative; }
+
+    /* ═══════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(8,8,9,0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Amber bottom indicator line */
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: var(--amber);
+    }
+
+    .nav-logo {
+      font-family: var(--f-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo em {
+      font-style: normal;
+      color: var(--amber);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-label {
+      font-family: var(--f-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      display: none;
+    }
+
+    @media (min-width: 640px) { .nav-label { display: block; } }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--amber);
+      color: #050506;
+      font-family: var(--f-mono);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: var(--r);
+      text-decoration: none;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .btn-nav:hover { background: var(--amber-hi); transform: translateY(-1px); }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    #hero {
+      min-height: 100svh;
+      padding: 120px 0 80px;
+      display: flex;
+      align-items: center;
+      /* Subtle grid background */
+      background-image:
+        linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 56px;
+      align-items: center;
+    }
+
+    @media (min-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr 420px; }
+    }
+
+    /* Amber tag pill */
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--f-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-dim);
+      padding: 5px 12px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+
+    .hero-eyebrow i { font-size: 0.85rem; }
+
+    .hero-h1 {
+      font-family: var(--f-display);
+      font-size: clamp(3rem, 9vw, 6.5rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    /* Amber filled word */
+    .hero-h1 .mark {
+      display: inline;
+      background: var(--amber);
+      color: #050506;
+      padding: 0 8px 4px;
+      line-height: 1;
+    }
+
+    .hero-sub {
+      font-size: 1.0625rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--amber);
+      color: #050506;
+      font-family: var(--f-display);
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: var(--r);
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      background: var(--amber-hi);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(245,158,11,0.25);
+    }
+
+    .btn-primary:active { transform: translateY(0); }
+
+    .hero-proof {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--f-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .proof-dots {
+      display: flex;
+    }
+
+    .proof-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 600;
+      margin-right: -8px;
+    }
+
+    .pd-1 { background: #1e3a1e; color: #4a8a4a; }
+    .pd-2 { background: #1e1e3a; color: #4a4a8a; }
+    .pd-3 { background: #3a1e1e; color: #8a4a4a; }
+    .pd-4 { background: #2a2a1e; color: #7a7a4a; }
+
+    /* ═══════════════════════════════════════
+       HERO MOCKUP
+    ═══════════════════════════════════════ */
+    .hero-mockup {
+      display: none;
+    }
+
+    @media (min-width: 900px) { .hero-mockup { display: block; } }
+
+    .mockup-shell {
+      background: var(--bg-2);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(245,158,11,0.06),
+        0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .mockup-topbar {
+      background: var(--bg-3);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mock-title {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .mock-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--f-mono);
+      font-size: 0.65rem;
+      color: var(--green);
+    }
+
+    .status-blink {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--green); }
+      50% { opacity: 0.4; box-shadow: none; }
+    }
+
+    .mockup-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .mock-card {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+
+    .mock-card:hover { border-color: var(--border-hi); }
+
+    .mock-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mock-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .mock-meta {
+      font-family: var(--f-mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .mock-tag {
+      font-family: var(--f-mono);
+      font-size: 0.6rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tag-new  { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+    .tag-wait { background: rgba(59,130,246,0.1);  color: #60a5fa;     border: 1px solid rgba(59,130,246,0.18); }
+    .tag-done { background: rgba(22,163,74,0.1);   color: #4ade80;     border: 1px solid rgba(22,163,74,0.18); }
+
+    .mock-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mock-amount {
+      font-family: var(--f-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--amber);
+    }
+
+    .mock-icons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .mock-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 3px;
+      background: var(--bg-4);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    /* ═══════════════════════════════════════
+       DIVIDER LINE
+    ═══════════════════════════════════════ */
+    .h-line {
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ═══════════════════════════════════════
+       TRUST STRIP
+    ═══════════════════════════════════════ */
+    .trust-strip {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 28px;
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      border-right: 1px solid var(--border);
+    }
+
+    .trust-item:last-child { border-right: none; }
+
+    .trust-item i { color: var(--amber); font-size: 1rem; }
+
+    @media (max-width: 640px) {
+      .trust-item { border-right: none; border-bottom: 1px solid var(--border); width: 50%; }
+      .trust-item:nth-child(odd) { border-right: 1px solid var(--border); }
+      .trust-item:last-child, .trust-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+    }
+
+    /* ═══════════════════════════════════════
+       SECTION HEADER PATTERN
+    ═══════════════════════════════════════ */
+    .s-eyebrow {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .s-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 2px;
+      background: var(--amber);
+      flex-shrink: 0;
+    }
+
+    .s-h2 {
+      font-family: var(--f-display);
+      font-size: clamp(2.2rem, 5.5vw, 3.75rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .s-sub {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    /* ═══════════════════════════════════════
+       PAIN SECTION
+    ═══════════════════════════════════════ */
+    #pain {
+      padding: 100px 0;
+    }
+
+    .pain-intro { margin-bottom: 56px; }
+
+    .pain-cards {
+      display: grid;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .pain-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .pain-card {
+      background: var(--bg-2);
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s;
+    }
+
+    .pain-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .pain-card:hover::before { transform: scaleX(1); }
+    .pain-card:hover { background: var(--bg-3); }
+
+    .pain-num {
+      font-family: var(--f-display);
+      font-size: 5rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--border-hi);
+      margin-bottom: 20px;
+      user-select: none;
+    }
+
+    .pain-icon-wrap {
+      width: 44px;
+      height: 44px;
+      background: var(--red-bg);
+      border: 1px solid rgba(220,38,38,0.18);
+      border-radius: var(--r);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #ef4444;
+      margin-bottom: 18px;
+    }
+
+    .pain-title {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .pain-body {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .pain-verdict {
+      display: inline-block;
+      margin-top: 20px;
+      font-family: var(--f-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #ef4444;
+      background: var(--red-bg);
+      border: 1px solid rgba(220,38,38,0.15);
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       FEATURES SECTION
+    ═══════════════════════════════════════ */
+    #features {
+      padding: 100px 0;
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .features-intro { margin-bottom: 64px; }
+
+    .feature-list { display: flex; flex-direction: column; }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 28px;
+      align-items: flex-start;
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .feature-row:first-child { padding-top: 0; }
+    .feature-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+    @media (min-width: 768px) {
+      .feature-row { grid-template-columns: 88px 1fr; gap: 36px; }
+    }
+
+    .feat-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.875rem;
+      color: var(--amber);
+      flex-shrink: 0;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    @media (min-width: 768px) {
+      .feat-icon { width: 88px; height: 88px; font-size: 2.125rem; }
+    }
+
+    .feature-row:hover .feat-icon {
+      border-color: var(--amber-dim);
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.06);
+    }
+
+    .feat-title {
+      font-family: var(--f-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .feat-desc {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 580px;
+    }
+
+    .feat-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      font-family: var(--f-mono);
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber);
+      background: var(--amber-bg);
+      border: 1px solid rgba(245,158,11,0.14);
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    /* ═══════════════════════════════════════
+       WAITLIST SECTION
+    ═══════════════════════════════════════ */
+    #waitlist {
+      padding: 100px 0;
+    }
+
+    .waitlist-wrap {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .waitlist-intro { text-align: center; margin-bottom: 48px; }
+    .waitlist-intro .s-sub { margin: 0 auto; text-align: center; }
+
+    /* Counter card */
+    .counter-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-lg);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .counter-left { flex-shrink: 0; }
+
+    .counter-num {
+      font-family: var(--f-display);
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--amber);
+    }
+
+    .counter-label {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .counter-right { flex: 1; }
+
+    .bar-track {
+      height: 8px;
+      background: var(--bg-4);
+      border-radius: 100px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+      border-radius: 100px;
+      transition: width 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .bar-note {
+      font-family: var(--f-mono);
+      font-size: 0.66rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border-hi);
+      border-radius: var(--r-lg);
+      padding: 32px;
+    }
+
+    /* Radio toggle */
+    .field-label {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .radio-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 440px) { .radio-row { grid-template-columns: 1fr; } }
+
+    .radio-opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .radio-opt:hover { border-color: var(--border-hi); color: var(--text); }
+
+    .radio-opt input[type="radio"] { display: none; }
+
+    .radio-indicator {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border-hi);
+      flex-shrink: 0;
+      margin-top: 1px;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+    }
+
+    .radio-indicator::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #050506;
+      transition: opacity 0.15s;
+      opacity: 0;
+    }
+
+    .radio-opt:has(input:checked) {
+      border-color: var(--amber-dim);
+      background: rgba(245,158,11,0.04);
+      color: var(--text);
+    }
+
+    .radio-opt:has(input:checked) .radio-indicator {
+      border-color: var(--amber);
+      background: var(--amber);
+    }
+
+    .radio-opt:has(input:checked) .radio-indicator::after { opacity: 1; }
+
+    .inline-err {
+      font-family: var(--f-mono);
+      font-size: 0.72rem;
+      color: #ef4444;
+      margin-top: -16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .inline-err.show { display: block; }
+
+    .form-field { margin-bottom: 20px; }
+
+    .form-input {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 13px 16px;
+      font-size: 1rem;
+      font-family: var(--f-body);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+
+    .form-input::placeholder { color: var(--text-dim); }
+
+    .form-input:focus {
+      border-color: var(--amber-dim);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.08);
+    }
+
+    .form-input.has-err {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+    }
+
+    .btn-submit {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--amber);
+      color: #050506;
+      font-family: var(--f-display);
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 16px 28px;
+      border-radius: var(--r);
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      margin-top: 8px;
+    }
+
+    .btn-submit:hover {
+      background: var(--amber-hi);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(245,158,11,0.28);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .form-note-text {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 14px;
+      letter-spacing: 0.03em;
+    }
+
+    /* Thank you state */
+    .ty-state {
+      display: none;
+      text-align: center;
+      padding: 48px 20px;
+    }
+
+    .ty-state.show { display: block; }
+
+    .ty-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--green-bg);
+      border: 1px solid rgba(22,163,74,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #4ade80;
+      margin: 0 auto 20px;
+    }
+
+    .ty-h3 {
+      font-family: var(--f-display);
+      font-size: 1.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .ty-p {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 380px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    footer {
+      padding: 36px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: var(--f-display);
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .footer-logo em { font-style: normal; color: var(--amber); }
+
+    .footer-small {
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+
+    .footer-launch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--f-mono);
+      font-size: 0.68rem;
+      color: var(--amber);
+      background: var(--amber-bg);
+      border: 1px solid rgba(245,158,11,0.15);
+      padding: 5px 14px;
+      border-radius: 100px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ═══════════════════════════════════════
+       SCROLL REVEAL ANIMATIONS
+    ═══════════════════════════════════════ */
+    .rv {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .rv.in { opacity: 1; transform: none; }
+
+    .rv-d1 { transition-delay: 0.08s; }
+    .rv-d2 { transition-delay: 0.16s; }
+    .rv-d3 { transition-delay: 0.24s; }
+    .rv-d4 { transition-delay: 0.32s; }
+    .rv-d5 { transition-delay: 0.40s; }
+
+    /* ═══════════════════════════════════════
+       SCROLLBAR
+    ═══════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    ::selection { background: rgba(245,158,11,0.2); color: var(--text); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── GDPR ── */
+    .gdpr-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .gdpr-check input[type="checkbox"] { display: none; }
+
+    .gdpr-box {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      border: 2px solid var(--border-hi);
+      flex-shrink: 0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .gdpr-box::after {
+      content: '';
+      width: 5px;
+      height: 9px;
+      border-right: 2px solid #050506;
+      border-bottom: 2px solid #050506;
+      transform: rotate(45deg) translateY(-1px);
+      opacity: 0;
+      transition: opacity 0.1s;
+    }
+
+    .gdpr-check:has(input:checked) .gdpr-box {
+      background: var(--amber);
+      border-color: var(--amber);
+    }
+
+    .gdpr-check:has(input:checked) .gdpr-box::after { opacity: 1; }
+
+    .gdpr-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .gdpr-toggle {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--amber);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .gdpr-toggle:hover { color: var(--amber-hi); }
+
+    .gdpr-panel {
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+
+    .gdpr-panel[hidden] { display: none; }
+
+    .gdpr-panel-inner {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--amber-dim);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gdpr-p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .gdpr-p strong { color: var(--text-dim); font-weight: 600; }
+
+    #err-gdpr { margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════ NAV ═══════ -->
+  <nav>
+    <a href="#" class="nav-logo">REM<em>SKA</em></a>
+    <div class="nav-right">
+      <span class="nav-label">EARLY ACCESS OTEVŘEN</span>
+      <a href="#waitlist" class="btn-nav">
+        <i class="ti ti-arrow-down"></i>
+        Registrovat
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══════ HERO ═══════ -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-grid">
+
+        <div class="hero-content">
+          <div class="hero-eyebrow rv">
+            <i class="ti ti-bolt"></i>
+            Spouštíme Q4 2026 · Early access
+          </div>
+
+          <h1 class="hero-h1 rv rv-d1">
+            Zakázky,<br />
+            protokoly<br />
+            a <span class="mark">faktury.</span><br />
+            Vše v jedné<br />appce.
+          </h1>
+
+          <p class="hero-sub rv rv-d2">
+            Appka pro řemeslníky kteří mají dost&nbsp;<strong>papírů, excelu a WhatsAppu.</strong> Udělaná pro lidi, co makají rukama — ne pro účetní.
+          </p>
+
+          <div class="hero-actions rv rv-d3">
+            <a href="#waitlist" class="btn-primary">
+              <i class="ti ti-rocket"></i>
+              Získat early access
+            </a>
+          </div>
+
+          <div class="hero-proof rv rv-d4">
+            <div class="proof-dots">
+              <div class="proof-dot pd-1">PK</div>
+              <div class="proof-dot pd-2">JN</div>
+              <div class="proof-dot pd-3">MH</div>
+              <div class="proof-dot pd-4">TP</div>
+            </div>
+            <span>Již 63 řemeslníků čeká v pořadníku</span>
+          </div>
+        </div>
+
+        <!-- App mockup -->
+        <div class="hero-mockup rv rv-d2">
+          <div class="mockup-shell">
+            <div class="mockup-topbar">
+              <span class="mock-title">Moje zakázky · Červen</span>
+              <div class="mock-status">
+                <div class="status-blink"></div>
+                Online
+              </div>
+            </div>
+            <div class="mockup-body">
+
+              <div class="mock-card">
+                <div class="mock-card-top">
+                  <div>
+                    <div class="mock-name">Výměna rozvaděče — Brno</div>
+                    <div class="mock-meta">Novák Pavel · Dnes 09:00</div>
+                  </div>
+                  <span class="mock-tag tag-new">Nová</span>
+                </div>
+                <div class="mock-footer">
+                  <span class="mock-amount">12 400 Kč</span>
+                  <div class="mock-icons">
+                    <div class="mock-icon"><i class="ti ti-camera"></i></div>
+                    <div class="mock-icon"><i class="ti ti-signature"></i></div>
+                    <div class="mock-icon"><i class="ti ti-receipt"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mock-card">
+                <div class="mock-card-top">
+                  <div>
+                    <div class="mock-name">Rekonstrukce koupelny — Praha 6</div>
+                    <div class="mock-meta">Horáková Jana · Zítra 08:00</div>
+                  </div>
+                  <span class="mock-tag tag-wait">Čeká</span>
+                </div>
+                <div class="mock-footer">
+                  <span class="mock-amount">34 800 Kč</span>
+                  <div class="mock-icons">
+                    <div class="mock-icon"><i class="ti ti-camera"></i></div>
+                    <div class="mock-icon"><i class="ti ti-signature"></i></div>
+                    <div class="mock-icon"><i class="ti ti-receipt"></i></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mock-card">
+                <div class="mock-card-top">
+                  <div>
+                    <div class="mock-name">Klimatizace — Ostrava</div>
+                    <div class="mock-meta">Tůma Radek · 5. 6. 2026</div>
+                  </div>
+                  <span class="mock-tag tag-done">Hotovo ✓</span>
+                </div>
+                <div class="mock-footer">
+                  <span class="mock-amount">18 200 Kč</span>
+                  <div class="mock-icons">
+                    <div class="mock-icon"><i class="ti ti-camera"></i></div>
+                    <div class="mock-icon"><i class="ti ti-signature"></i></div>
+                    <div class="mock-icon"><i class="ti ti-receipt"></i></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ TRUST STRIP ═══════ -->
+  <div class="trust-strip">
+    <div class="trust-item rv"><i class="ti ti-shield-check"></i>Data v EU</div>
+    <div class="trust-item rv rv-d1"><i class="ti ti-device-mobile"></i>iOS & Android</div>
+    <div class="trust-item rv rv-d2"><i class="ti ti-wifi-off"></i>Funguje offline</div>
+    <div class="trust-item rv rv-d3"><i class="ti ti-flag"></i>CZ · SK · PL</div>
+    <div class="trust-item rv rv-d4"><i class="ti ti-certificate"></i>GDPR compliant</div>
+  </div>
+
+  <!-- ═══════ PAIN POINTS ═══════ -->
+  <section id="pain">
+    <div class="container">
+      <div class="pain-intro">
+        <div class="s-eyebrow rv">Znáš to taky?</div>
+        <h2 class="s-h2 rv rv-d1">Proč přestane<br />fungovat "jak to<br />dělám teď"</h2>
+        <p class="s-sub rv rv-d2">Každý řemeslník to začne řešit sám. Excel, papír, WhatsApp. Pak zakázky začnou padat mezi stoličky.</p>
+      </div>
+
+      <div class="pain-cards">
+        <div class="pain-card rv">
+          <div class="pain-num">01</div>
+          <div class="pain-icon-wrap"><i class="ti ti-table"></i></div>
+          <div class="pain-title">Zakázky v excelu nebo na papíru</div>
+          <div class="pain-body">Přijde nová zakázka, zapomeneš aktualizovat tabulku. Zákazník volá kde je, ty nevíš co slíbil kolega. Přehled jde do háje.</div>
+          <span class="pain-verdict">Ztrácíš přehled</span>
+        </div>
+
+        <div class="pain-card rv rv-d1">
+          <div class="pain-num">02</div>
+          <div class="pain-icon-wrap"><i class="ti ti-files"></i></div>
+          <div class="pain-title">Faktury v jednom programu, zakázky v druhém</div>
+          <div class="pain-body">Přepisuješ stejné věci dvakrát. Zákazník, adresa, položky — pokaždé znovu. A pak přijde audit a ty hledáš která faktura ke které zakázce.</div>
+          <span class="pain-verdict">Dvojitá práce</span>
+        </div>
+
+        <div class="pain-card rv rv-d2">
+          <div class="pain-num">03</div>
+          <div class="pain-icon-wrap"><i class="ti ti-file-x"></i></div>
+          <div class="pain-title">Žádný protokol, zákazník se pak vymlouvá</div>
+          <div class="pain-body">Udělal jsi práci, zákazník říká že to bylo jinak. Nemáš podpis, nemáš fotky, nemáš nic. Bez důkazu nemáš jak bránit svou práci ani cenu.</div>
+          <span class="pain-verdict">Bez důkazu nemáš nic</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FEATURES ═══════ -->
+  <section id="features">
+    <div class="container">
+      <div class="features-intro">
+        <div class="s-eyebrow rv">Co Remska umí</div>
+        <h2 class="s-h2 rv rv-d1">Nástroj udělaný<br />pro tebe, ne pro<br />účetní</h2>
+        <p class="s-sub rv rv-d2">Žádné zbytečné funkce. Jen to, co denně potřebuješ — rychle, na mobilu, i bez signálu.</p>
+      </div>
+
+      <div class="feature-list">
+
+        <div class="feature-row rv">
+          <div class="feat-icon"><i class="ti ti-calendar-event"></i></div>
+          <div>
+            <div class="feat-title">Zakázky a kalendář</div>
+            <div class="feat-desc">Všechny zakázky na jednom místě — s termínem, zákazníkem, cenou a stavem. Kalendář ti ukáže co máš zítra a co nestihneš. Konec scrollování přes desítky zpráv ve WhatsAppu.</div>
+            <span class="feat-chip"><i class="ti ti-check"></i> Přehled všeho najednou</span>
+          </div>
+        </div>
+
+        <div class="feature-row rv">
+          <div class="feat-icon"><i class="ti ti-signature"></i></div>
+          <div>
+            <div class="feat-title">Předávací protokol + podpis zákazníka</div>
+            <div class="feat-desc">Po dokončení práce zákazník podepíše přímo na tvém mobilu. Protokol se automaticky přiloží k zakázce. Máš důkaz, zákazník má jistotu. Bez papírování.</div>
+            <span class="feat-chip"><i class="ti ti-check"></i> Právně platný podpis na mobilu</span>
+          </div>
+        </div>
+
+        <div class="feature-row rv">
+          <div class="feat-icon"><i class="ti ti-receipt"></i></div>
+          <div>
+            <div class="feat-title">Faktura s QR platbou jedním klikem</div>
+            <div class="feat-desc">Ze zakázky vygeneruješ fakturu za pár vteřin. Zákazník naskenuje QR kód a platí hned. Žádné přepisování, žádné chyby v čísle účtu. Peníze přijdou rychleji.</div>
+            <span class="feat-chip"><i class="ti ti-check"></i> QR platba dle standardu ČNB</span>
+          </div>
+        </div>
+
+        <div class="feature-row rv">
+          <div class="feat-icon"><i class="ti ti-camera"></i></div>
+          <div>
+            <div class="feat-title">Fotodokumentace před / po</div>
+            <div class="feat-desc">Vyfotíš stav před prací a po. Fotky se automaticky přiřadí k zakázce s časovým razítkem. Zákazník vidí co bylo a co je. Ty máš archiv pro případ reklamace.</div>
+            <span class="feat-chip"><i class="ti ti-check"></i> Časové razítko na každé fotce</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ WAITLIST ═══════ -->
+  <section id="waitlist">
+    <div class="container">
+      <div class="waitlist-wrap">
+
+        <div class="waitlist-intro rv">
+          <div class="s-eyebrow" style="justify-content:center;">Early access</div>
+          <h2 class="s-h2">Získej early access<br />se 40% slevou<br />navždy</h2>
+          <p class="s-sub">Prvních 100 řemeslníků dostane cenu uzamčenou navždy. Bez ročních smluv, bez háčků.</p>
+        </div>
+
+        <!-- Counter -->
+        <div class="counter-card rv">
+          <div class="counter-left">
+            <div class="counter-num">63</div>
+            <div class="counter-label">řemeslníků čeká</div>
+          </div>
+          <div class="counter-right">
+            <div class="bar-track">
+              <div class="bar-fill" id="bar-fill"></div>
+            </div>
+            <div class="bar-note">63 / 100 míst obsazeno</div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="form-card rv">
+          <div id="form-wrap">
+            <form id="wl-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+              <input type="hidden" name="_subject" value="Nový zájemce o Remska early access" />
+              <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+
+              <label class="field-label">Kdo jsi?</label>
+              <div class="radio-row">
+                <label class="radio-opt">
+                  <input type="radio" name="typ" value="osvc" />
+                  <span class="radio-indicator"></span>
+                  <span>Jsem OSVČ&nbsp;/ živnostník</span>
+                </label>
+                <label class="radio-opt">
+                  <input type="radio" name="typ" value="firma" />
+                  <span class="radio-indicator"></span>
+                  <span>Mám firmu s více lidmi&nbsp;(2–10)</span>
+                </label>
+              </div>
+              <div class="inline-err" id="err-radio">Vyber prosím typ podnikání.</div>
+
+              <div class="form-field">
+                <label class="field-label" for="email">Tvůj e-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-input"
+                  placeholder="tomas.novak@gmail.com"
+                  autocomplete="email"
+                  inputmode="email"
+                />
+                <div class="inline-err" id="err-email">Zadej prosím platný e-mail.</div>
+              </div>
+
+              <div class="form-field">
+                <label class="gdpr-check">
+                  <input type="checkbox" name="gdpr" id="gdpr" />
+                  <span class="gdpr-box"></span>
+                  <span class="gdpr-text">Souhlasím se <button type="button" class="gdpr-toggle" id="gdpr-toggle">zpracováním osobních údajů</button></span>
+                </label>
+                <div class="inline-err" id="err-gdpr">Souhlas se zpracováním osobních údajů je povinný.</div>
+              </div>
+
+              <div class="gdpr-panel" id="gdpr-panel" hidden>
+                <div class="gdpr-panel-inner">
+                  <p class="gdpr-p"><strong>Kdo zpracovává tvé údaje:</strong> František Hoza, IČO 07723547 (správce údajů), remska.com</p>
+                  <p class="gdpr-p"><strong>Jaké údaje:</strong> Pouze e-mailová adresa a typ podnikání, které jsi zadal/a do formuláře.</p>
+                  <p class="gdpr-p"><strong>Za jakým účelem:</strong> Informování o spuštění aplikace Remska a zasílání early access pozvánky. Bez souhlasu ti nenapíšeme.</p>
+                  <p class="gdpr-p"><strong>Jak dlouho:</strong> Do spuštění produktu, max. 24 měsíců. Kdykoli můžeš souhlas odvolat e-mailem na ahoj@remska.com.</p>
+                  <p class="gdpr-p"><strong>Tvá práva (GDPR):</strong> Právo na přístup, opravu, výmaz, přenositelnost a námitku. Stížnost lze podat u ÚOOÚ (uoou.cz).</p>
+                  <p class="gdpr-p" style="margin-top:0;">Data jsou uložena v EU. Nepředáváme je třetím stranám kromě Formspree (zpracovatel formulářů, EU-US DPF).</p>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-submit" id="btn-submit">
+                <i class="ti ti-rocket"></i>
+                Chci early access
+              </button>
+              <p class="form-note-text">Žádný spam. Napíšeme ti jen když otevřeme přístup.</p>
+            </form>
+          </div>
+
+          <div class="ty-state" id="ty">
+            <div class="ty-icon"><i class="ti ti-check"></i></div>
+            <div class="ty-h3">Jsi v pořadníku!</div>
+            <p class="ty-p">Potvrzení ti přijde na mail. Jakmile otevřeme přístup, budeš mezi prvními a tvůj 40% discount je uzamčen navždy.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer>
+    <div class="footer-logo">REM<em>SKA</em>.COM</div>
+    <div class="footer-small">Remska © 2026 — Appka pro řemeslníky</div>
+    <div class="footer-launch">
+      <i class="ti ti-map-pin"></i>
+      Spouštíme v Q4 2026 — CZ, SK, PL
+    </div>
+  </footer>
+
+  <script>
+    // ── Intersection Observer: scroll reveal ──────────────────────────
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
+
+    document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+    // Hero elements fire on load
+    document.querySelectorAll('#hero .rv').forEach((el, i) => {
+      setTimeout(() => el.classList.add('in'), 80 + i * 60);
+    });
+
+    // ── Progress bar animation ────────────────────────────────────────
+    const barFill = document.getElementById('bar-fill');
+    const barObs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setTimeout(() => barFill.style.width = '63%', 200);
+        barObs.disconnect();
+      }
+    }, { threshold: 0.5 });
+    barObs.observe(barFill);
+
+    // ── Form ─────────────────────────────────────────────────────────
+    const form      = document.getElementById('wl-form');
+    const emailInp  = document.getElementById('email');
+    const errRadio  = document.getElementById('err-radio');
+    const errEmail  = document.getElementById('err-email');
+    const errGdpr   = document.getElementById('err-gdpr');
+    const gdprChk   = document.getElementById('gdpr');
+    const gdprPanel = document.getElementById('gdpr-panel');
+    const gdprToggle= document.getElementById('gdpr-toggle');
+    const btnSubmit = document.getElementById('btn-submit');
+    const formWrap  = document.getElementById('form-wrap');
+    const ty        = document.getElementById('ty');
+
+    gdprToggle.addEventListener('click', () => {
+      const hidden = gdprPanel.hasAttribute('hidden');
+      if (hidden) gdprPanel.removeAttribute('hidden');
+      else gdprPanel.setAttribute('hidden', '');
+    });
+
+    gdprChk.addEventListener('change', () => {
+      if (gdprChk.checked) errGdpr.classList.remove('show');
+    });
+
+    function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+    function radioVal()    { return form.querySelector('input[name="typ"]:checked'); }
+
+    form.querySelectorAll('input[name="typ"]').forEach(r =>
+      r.addEventListener('change', () => errRadio.classList.remove('show'))
+    );
+
+    emailInp.addEventListener('input', () => {
+      if (validEmail(emailInp.value.trim())) {
+        emailInp.classList.remove('has-err');
+        errEmail.classList.remove('show');
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      let ok = true;
+
+      if (!radioVal()) {
+        errRadio.classList.add('show');
+        ok = false;
+      }
+
+      if (!validEmail(emailInp.value.trim())) {
+        emailInp.classList.add('has-err');
+        errEmail.classList.add('show');
+        ok = false;
+      }
+
+      if (!gdprChk.checked) {
+        errGdpr.classList.add('show');
+        ok = false;
+      }
+
+      if (!ok) return;
+
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 0.9s linear infinite"></i> Odesílám...';
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+
+        if (res.ok) {
+          formWrap.style.display = 'none';
+          ty.classList.add('show');
+        } else {
+          throw new Error();
+        }
+      } catch {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="ti ti-rocket"></i> Chci early access';
+        alert('Něco se nepovedlo. Zkus to prosím znovu nebo nás kontaktuj na ahoj@remska.com');
+      }
+    });
+
+    // ── Smooth scroll for anchor links ───────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const t = document.querySelector(a.getAttribute('href'));
+        if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+  </script>
+</body>
+</html>
