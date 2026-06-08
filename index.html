@@ -729,7 +729,7 @@
        WAITLIST SECTION
     ═══════════════════════════════════════ */
     #waitlist {
-      padding: 100px 0;
+      padding: 56px 0 64px;
     }
 
     .waitlist-wrap {
@@ -737,26 +737,27 @@
       margin: 0 auto;
     }
 
-    .waitlist-intro { text-align: center; margin-bottom: 48px; }
+    .waitlist-intro { text-align: center; margin-bottom: 24px; }
     .waitlist-intro .s-sub { margin: 0 auto; text-align: center; }
+    .waitlist-intro .s-h2 { font-size: clamp(1.75rem, 5vw, 2.75rem); margin-bottom: 10px; }
 
     /* Counter card */
     .counter-card {
       background: var(--bg-2);
       border: 1px solid var(--border-hi);
       border-radius: var(--r-lg);
-      padding: 24px 28px;
-      margin-bottom: 24px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
     }
 
     .counter-left { flex-shrink: 0; }
 
     .counter-num {
       font-family: var(--f-display);
-      font-size: 3rem;
+      font-size: 2.25rem;
       font-weight: 900;
       line-height: 1;
       color: var(--amber);
@@ -801,7 +802,7 @@
       background: var(--bg-2);
       border: 1px solid var(--border-hi);
       border-radius: var(--r-lg);
-      padding: 32px;
+      padding: 24px;
     }
 
     /* Radio toggle */
@@ -819,8 +820,8 @@
     .radio-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 24px;
+      gap: 8px;
+      margin-bottom: 16px;
     }
 
     @media (max-width: 440px) { .radio-row { grid-template-columns: 1fr; } }
@@ -889,7 +890,7 @@
 
     .inline-err.show { display: block; }
 
-    .form-field { margin-bottom: 20px; }
+    .form-field { margin-bottom: 14px; }
 
     .form-input {
       width: 100%;
